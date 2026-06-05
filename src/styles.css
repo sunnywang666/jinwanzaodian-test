@@ -1,0 +1,31 @@
+:root {
+  color-scheme: light;
+  font-family: "Baloo 2", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: #fdf6ec;
+  color: #5a4a3f;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top, rgba(240, 168, 104, 0.14), transparent 35%),
+    linear-gradient(180deg, #fff8f0 0%, #fdf6ec 100%);
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
