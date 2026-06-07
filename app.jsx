@@ -2,7 +2,18 @@
    「今晚早点」 主应用 — App 组件 + 路由 + 状态管理
    ============================================================ */
 var { useState, useEffect, useRef } = React;
-var { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } = Recharts;
+function clamp(value, min, max) {
+  return Math.max(min, Math.min(max, value));
+}
+
+function buildTypeDistributionGradient(items) {
+  var offset = 0;
+  return "conic-gradient(" + items.map(function(item) {
+    var start = offset;
+    offset += item.value;
+    return item.color + " " + start + "% " + offset + "%";
+  }).join(", ") + ")";
+}
 
 /* ============ 测评结果方案卡片 ============ */
 function SolutionView({ type }) {
@@ -796,22 +807,30 @@ function App() {
             </div>
             <div style={{ background: C.card, borderRadius: 20, padding: "18px", border: "1px solid " + C.border, marginBottom: 14 }}>
               <p style={{ color: C.textMuted, fontSize: 12, marginBottom: 14 }}>本周入睡时间</p>
-              <ResponsiveContainer width="100%" height={150}>
-                <BarChart data={weeklyData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-                  <XAxis dataKey="day" tick={{ fill: C.textMuted, fontSize: 11 }} axisLine={false} tickLine={false} />
-                  <YAxis domain={[22, 25.5]} tick={{ fill: C.textMuted, fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={function(v) { return formatTime(v); }} width={40} />
-                  <Tooltip contentStyle={{ background: C.card, border: "1px solid " + C.border, borderRadius: 10, fontSize: 12 }} formatter={function(v) { return [formatTime(v), "入睡"]; }} />
-                  <Bar dataKey="time" radius={[8, 8, 0, 0]}>{weeklyData.map(function(e, i) { return <Cell key={i} fill={typeConfig[e.type] ? typeConfig[e.type].color : C.accent} fillOpacity={0.85} />; })}</Bar>
-                </BarChart>
-              </ResponsiveContainer>
-              <p style={{ color: C.textDim, fontSize: 11, textAlign: "center", marginTop: 6 }}>柱子颜色 = 当晚的熬夜小动物</p>
+              <div style={{ display: "flex", alignItems: "flex-end", gap: 10, height: 160 }}>
+                {weeklyData.map(function(entry, i) {
+                  var barHeight = 28 + clamp((entry.time - 22) / 3.5, 0, 1) * 92;
+                  var barColor = typeConfig[entry.type] ? typeConfig[entry.type].color : C.accent;
+                  return <div key={i} style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+                    <div style={{ color: C.textMuted, fontSize: 10, lineHeight: 1 }}>{formatTime(entry.time)}</div>
+                    <div style={{ width: "100%", height: 120, display: "flex", alignItems: "flex-end" }}>
+                      <div style={{ width: "100%", height: barHeight, borderRadius: "12px 12px 4px 4px", background: "linear-gradient(180deg, " + barColor + ", " + barColor + "cc)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.35)" }}></div>
+                    </div>
+                    <div style={{ color: C.textMuted, fontSize: 11, fontWeight: 600 }}>{entry.day}</div>
+                  </div>;
+                })}
+              </div>
+              <p style={{ color: C.textDim, fontSize: 11, textAlign: "center", marginTop: 10 }}>Color = animal type</p>
             </div>
             <div style={{ background: C.card, borderRadius: 20, padding: "18px", border: "1px solid " + C.border, marginBottom: 14 }}>
               <p style={{ color: C.textMuted, fontSize: 12, marginBottom: 12 }}>熬夜类型分布（近 30 天）</p>
               <div style={{ display: "flex", alignItems: "center", gap: 18, flexWrap: "wrap" }}>
-                <ResponsiveContainer width={120} height={120}>
-                  <PieChart><Pie data={typeDistribution} dataKey="value" cx="50%" cy="50%" innerRadius={32} outerRadius={56} strokeWidth={0}>{typeDistribution.map(function(e, i) { return <Cell key={i} fill={e.color} fillOpacity={0.88} />; })}</Pie></PieChart>
-                </ResponsiveContainer>
+                <div style={{ width: 120, height: 120, borderRadius: "50%", background: buildTypeDistributionGradient(typeDistribution), display: "grid", placeItems: "center", flexShrink: 0 }}>
+                  <div style={{ width: 68, height: 68, borderRadius: "50%", background: C.card, border: "1px solid " + C.border, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", boxShadow: "0 8px 20px rgba(90,74,63,0.06)" }}>
+                    <span style={{ color: C.text, fontSize: 14, fontWeight: 700, fontFamily: "'Baloo 2', cursive", lineHeight: 1 }}>30</span>
+                    <span style={{ color: C.textMuted, fontSize: 10, lineHeight: 1.2, marginTop: 3 }}>Days</span>
+                  </div>
+                </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 7, flex: 1, minWidth: 120 }}>
                   {typeDistribution.map(function(item, i) {
                     return <div key={i} style={{ display: "flex", alignItems: "center", gap: 8 }}>
