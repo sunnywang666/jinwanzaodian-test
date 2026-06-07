@@ -1,22 +1,93 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-CN">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>今晚早点</title>
-    <meta
-      name="description"
-      content="今晚早点原型网页，可直接通过 GitHub Pages 打开。"
-    />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>今晚早点</title>
+  <meta name="description" content="今晚早点 — 一个陪你好好睡觉的小伙伴" />
+  <meta ext-resource-dependency="https://unpkg.com/react@18.3.1/umd/react.development.js" />
+  <meta ext-resource-dependency="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" />
+  <meta ext-resource-dependency="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" />
+  <meta ext-resource-dependency="https://unpkg.com/recharts@2.12.7/umd/Recharts.js" />
+  <template id="__bundler_thumbnail">
+    <svg viewBox="0 0 80 56" xmlns="http://www.w3.org/2000/svg">
+      <rect width="80" height="56" rx="8" fill="#fdf6ec"/>
+      <circle cx="40" cy="22" r="12" fill="#f0a868" opacity="0.7"/>
+      <text x="40" y="27" text-anchor="middle" font-size="14" fill="#fff">🌙</text>
+      <text x="40" y="46" text-anchor="middle" font-size="7" fill="#5a4a3f" font-weight="600">今晚早点</text>
+    </svg>
+  </template>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=Baloo+2:wght@500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root { color-scheme: light; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body, #root { min-height: 100%; }
+    body {
+      margin: 0; min-height: 100vh; min-height: 100dvh;
+      font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      background: radial-gradient(circle at top, rgba(240, 168, 104, 0.14), transparent 35%),
+                  linear-gradient(180deg, #fff8f0 0%, #fdf6ec 100%);
+      color: #5a4a3f;
+      display: flex; align-items: center; justify-content: center;
+    }
+    /* Prevent flex container from shrinking the app shell */
+    #root { width: 100%; display: flex; justify-content: center; align-items: center; min-height: 100vh; min-height: 100dvh; }
+    #root > div { flex-shrink: 0; }
+    button, input, textarea, select { font: inherit; }
+    ::-webkit-scrollbar { width: 0; height: 0; }
+    input:focus, button:focus { outline: none; }
+
+    /* Animations */
+    @keyframes fadeSlideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes pulse { 0%, 100% { opacity: .35; } 50% { opacity: 1; } }
+    @keyframes typingBounce {
+      0%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-5px); }
+    }
+    @keyframes floaty { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+    @keyframes twinkle { 0%, 100% { opacity: .3; } 50% { opacity: 1; } }
+
+    /* Onboarding animations */
+    @keyframes obFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    @keyframes obTwinkle { 0%, 100% { opacity: 0.2; } 50% { opacity: 0.7; } }
+    @keyframes obSlideIn { from { opacity: 0; transform: translateX(-16px); } to { opacity: 1; transform: translateX(0); } }
+
+    .ob-enter { animation: obFadeIn 0.3s ease both; }
+    .ob-exit { animation: obFadeOut 0.25s ease both; }
+    @keyframes obFadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes obFadeOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-8px); } }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- React + Babel -->
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+  <!-- Recharts (for dashboard charts) — provide fallback if CDN fails -->
+  <script src="https://unpkg.com/recharts@2.12.7/umd/Recharts.js"></script>
+  <script>
+    if (typeof Recharts === 'undefined') {
+      window.Recharts = {
+        ResponsiveContainer: function(p) { return React.createElement('div', {style:{width:'100%',height:p.height||150}}, p.children); },
+        BarChart: function(p) { return React.createElement('div', null, p.children); },
+        PieChart: function(p) { return React.createElement('div', null, p.children); },
+        Bar: function() { return null; }, Pie: function() { return null; },
+        Cell: function() { return null; }, XAxis: function() { return null; },
+        YAxis: function() { return null; }, Tooltip: function() { return null; },
+      };
+    }
+  </script>
+
+  <!-- App modules -->
+  <script type="text/babel" src="data.jsx"></script>
+  <script type="text/babel" src="engine.jsx"></script>
+  <script type="text/babel" src="components.jsx"></script>
+  <script type="text/babel" src="onboarding.jsx"></script>
+  <script type="text/babel" src="app.jsx"></script>
+</body>
 </html>
