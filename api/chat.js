@@ -1,7 +1,19 @@
 const AIPING_ENDPOINT = process.env.AIPING_API_ENDPOINT || "https://aiping.cn/api/v1/chat/completions";
 const AIPING_MODEL = process.env.AIPING_MODEL || "deepseek-v3";
 
+function setCors(res) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+}
+
 export default async function handler(req, res) {
+  setCors(res);
+
+  if (req.method === "OPTIONS") {
+    return res.status(204).end();
+  }
+
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
     return res.status(405).json({ error: "Method not allowed" });

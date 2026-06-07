@@ -5,11 +5,14 @@
 /* ============ LLM Service (AIPing → Claude fallback → 关键词引擎) ============ */
 const LLM_CONFIG = {
   // AIPing 平台 — OpenAI 兼容接口 (GitHub Pages 部署时使用)
-  endpoint: "/api/chat",
+  endpoint: window.__CHAT_API_URL__ || "",
 };
 
 // 方式 1: 调 AIPing API (OpenAI 兼容)
 async function callAIPing(systemPrompt, allMessages) {
+  if (!LLM_CONFIG.endpoint) {
+    throw new Error("Chat API endpoint not configured");
+  }
   var response = await fetch(LLM_CONFIG.endpoint, {
     method: "POST",
     headers: {
@@ -23,7 +26,7 @@ async function callAIPing(systemPrompt, allMessages) {
   if (!response.ok) {
     var errBody = "";
     try { errBody = await response.text(); } catch(e2) {}
-    throw new Error("Server API " + response.status + ": " + errBody.substring(0, 200));
+    throw new Error("Chat API " + response.status + ": " + errBody.substring(0, 200));
   }
   var data = await response.json();
   if (typeof data.reply === "string") {
