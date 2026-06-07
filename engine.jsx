@@ -5,9 +5,7 @@
 /* ============ LLM Service (AIPing → Claude fallback → 关键词引擎) ============ */
 const LLM_CONFIG = {
   // AIPing 平台 — OpenAI 兼容接口 (GitHub Pages 部署时使用)
-  endpoint: "https://aiping.cn/api/v1/chat/completions",
-  apiKey: "QC-517ea2c8450b9fdffbcf59a16ec75383-3c0ecce27640cf76eaacc3bf102435fb",
-  model: "deepseek-v3",
+  endpoint: "/api/chat",
 };
 
 // 方式 1: 调 AIPing API (OpenAI 兼容)
@@ -16,22 +14,20 @@ async function callAIPing(systemPrompt, allMessages) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": "Bearer " + LLM_CONFIG.apiKey,
     },
     body: JSON.stringify({
-      model: LLM_CONFIG.model,
-      max_tokens: 400,
+      system: systemPrompt,
       messages: allMessages,
     }),
   });
   if (!response.ok) {
     var errBody = "";
     try { errBody = await response.text(); } catch(e2) {}
-    throw new Error("AIPing API " + response.status + ": " + errBody.substring(0, 200));
+    throw new Error("Server API " + response.status + ": " + errBody.substring(0, 200));
   }
   var data = await response.json();
-  if (data.choices && data.choices[0] && data.choices[0].message) {
-    return (data.choices[0].message.content || "").trim();
+  if (typeof data.reply === "string") {
+    return data.reply.trim();
   }
   return null;
 }
